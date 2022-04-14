@@ -1,0 +1,74 @@
+{
+    "name": "MouseInput",
+    "maps": [
+        {
+            "name": "ActionMap",
+            "id": "8665ee3e-4e7d-402f-9a91-27854365c0fc",
+            "actions": [
+                {
+                    "name": "Click",
+                    "type": "Button",
+                    "id": "8e3c8ade-d9d1-4e56-93eb-fd5daa57ab1c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Point",
+                    "type": "Value",
+                    "id": "2ac2f693-571e-471a-bb68-6ef3cab83124",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Shift",
+                    "type": "Button",
+                    "id": "d7cc8d46-fbe1-4b10-848b-71cd8c3ad9d2",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "bb3e309d-9aae-42d9-b238-44bfeebb4e19",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "Press(behavior=2)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f0b4405d-bc14-4f6d-8a60-4d6f7ca41f2c",
+                    "path": "*/{Point}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Point",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "40abcb0a-7301-496d-93d7-ceb1f0d61b3f",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "Press(behavior=2)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Shift",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
