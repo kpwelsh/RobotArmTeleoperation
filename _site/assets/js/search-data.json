@@ -1,0 +1,56 @@
+{"0": {
+    "doc": "Overview",
+    "title": "Overview",
+    "content": " ",
+    "url": "http://localhost:4000/",
+    "relUrl": "/"
+  },"1": {
+    "doc": "Overview",
+    "title": "Motivation",
+    "content": "Compared to autonomous robotics, developing a system for robotic teleoperation is typically seen as straightforward. By introducing a human operator the challenge of creating software that exhibits complex decision making, planning, and responsiveness are side stepped. However, simply introducing a human agent into the system does not result in a high performance system. Just last month, Daniel Rea and Stela Seo surveyed the field of teleoperation and concluded that effective teleoperation still requires highly trained expert users and calls for a . …[R]enewed focus in broad, user-centered research goals to improve teleoperation interfaces in everyday applications for non-experts…1 . While robotic teleoperation has the potential to achieve super-human performance, looking closesly at state of the art teleoperation systems suggests we have yet to achieve performance that is even comparable to a human. The following video shows several teleoperation systems, including a robot breaking the “break in case of emergency” glass with somewhat less urgency than optimal in an “emergency” situation. Comparing this to The Box and Block Test (BBT), a human dexterity and motor function test designed to evaluate individuals with a range of neurological diagnoses, it is clear that modern human + robot systems, even with expert users, have yet to surpass a lone human system in terms of absolute performance2. This project was designed to further explore the performance gap between human and human + robot teleoperation performance. Developed in VR using Unity, this platform offers several useful components for measuring the impact of different performance factors: . | Realistic Task Models: . | Several robotic arm platforms with realistic dynamics | Task models based on real human dexterity evaluation tools . | Including variations that recreate the human tasks and those that are more kinematically favorable for robot manipulation | . | Realistic physical interactions | . | Robust Control Systems: . | An arm-agnostic realtime control system based on modern inverse kinematics algorithms | Knobs to control low level control variables . | Lowpass filters | Dynamic constraints (joint velocity and torque limits) | Latency | . | . | Variable Visual Feedback Modalities: . | Stereo VR | Mono VR | Single static camera | Muliple static cameras | . | Variable Input Device Support: . | 6DOF Unity XR/WebXR tracked devices | Interactive markers for keyboard and mouse | Unity supported gamepads (Xbox, PlayStation, Switch) | . | Web Deployability | Object Task Metrics . | Sub-task progress and completion time (WiP) | Remote task recording and replay (WiP) | . | . https://motion.cs.illinois.edu/RoboticSystems/InverseKinematics.html . | Still Not Solved: a call for renewed focus on user-centered teleoperation interfaces &#8617; . | This is not to dismiss the ROI of adding a robot when there are other factors involved (e.g. safety or convenience). &#8617; . | . ",
+    "url": "http://localhost:4000/#motivation",
+    "relUrl": "/#motivation"
+  },"2": {
+    "doc": "Task Models",
+    "title": "Task Models",
+    "content": " ",
+    "url": "http://localhost:4000/task_models/",
+    "relUrl": "/task_models/"
+  },"3": {
+    "doc": "Robot Arms",
+    "title": "Robot Models",
+    "content": "This project focuses on the dexterity of human + robot systems on a table-top scale with robot arms. When comparing which robot arms are effective for teleoperation, the two main factors to consider are the kinematic and dynamic profiles. ",
+    "url": "http://localhost:4000/task_models/robot_models.html#robot-models",
+    "relUrl": "/task_models/robot_models.html#robot-models"
+  },"4": {
+    "doc": "Robot Arms",
+    "title": "Kinematics",
+    "content": "In simulation, the most obvious challenge when controlling a robot arm is generating good solutions to the inverse kinematics problem for control. The performance of a human + robot teleoperation system is highly dependent on the ability to generate feasbile and smooth robot motions from human inputs. And in turn, the ability to generate such motions can depend on subtleties of the particular robot kinematics1. ",
+    "url": "http://localhost:4000/task_models/robot_models.html#kinematics",
+    "relUrl": "/task_models/robot_models.html#kinematics"
+  },"5": {
+    "doc": "Robot Arms",
+    "title": "Dynamics",
+    "content": "When simulating a robot arm, it is possible to completely ignore the dynamic constraints by generating un-physical motions. While this choice simplifies the system significantly, it is often the case that robot arms with more favorable kinematics have stricter dynamic constraints and ignoring them would lead one to conclude that certain arms are better than they are for a real task. This project aims to both offer a reasonable facsimile of real robot dynamics as well as the option to change the dynamics to explore the effect on task performance. ",
+    "url": "http://localhost:4000/task_models/robot_models.html#dynamics",
+    "relUrl": "/task_models/robot_models.html#dynamics"
+  },"6": {
+    "doc": "Robot Arms",
+    "title": "Included Robots",
+    "content": "Franka Emika Panda . | A thorough description of the complexities of robot inverse kinematics can be found here. &#8617; . | . ",
+    "url": "http://localhost:4000/task_models/robot_models.html#included-robots",
+    "relUrl": "/task_models/robot_models.html#included-robots"
+  },"7": {
+    "doc": "Robot Arms",
+    "title": "Robot Arms",
+    "content": " ",
+    "url": "http://localhost:4000/task_models/robot_models.html",
+    "relUrl": "/task_models/robot_models.html"
+  },"8": {
+    "doc": "Tasks",
+    "title": "Tasks",
+    "content": " ",
+    "url": "http://localhost:4000/task_models/tasks.html",
+    "relUrl": "/task_models/tasks.html"
+  }
+}
