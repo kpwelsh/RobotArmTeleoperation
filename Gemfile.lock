@@ -282,7 +282,6 @@ PLATFORMS
 
 DEPENDENCIES
   github-pages
-  jekyll
   just-the-docs
   rouge
   webrick (~> 1.7)

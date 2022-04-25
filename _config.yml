@@ -2,7 +2,7 @@ title: Robot Teleoperation Platform
 email: kevinwelsh132@gmail.com
 github_username: kpwelsh
 
-source: _docs
+source: docs
 
 remote_theme: just-the-docs/just-the-docs
 color_scheme: dark

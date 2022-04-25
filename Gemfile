@@ -1,5 +1,5 @@
 source "https://rubygems.org"
-gem "jekyll"
+#gem "jekyll"
 gem "just-the-docs"
 gem "rouge"
 gem "webrick", "~> 1.7"
