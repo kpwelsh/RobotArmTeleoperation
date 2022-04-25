@@ -1,0 +1,288 @@
+<script src='https://cdn.plot.ly/plotly-2.11.1.min.js'></script>
+<script>
+
+    function groove_loss(x, t, d, c, f, g) {
+        return -Math.exp( (-Math.pow(x - t, d)) / (2.0 * Math.pow(c, 2) ) ) + f * Math.pow(x - t, g);
+    }
+
+    function mod(a, n) {
+        return ((a % n ) + n ) % n;
+    }
+
+    let l1 = 1;
+    let l2 = 1;
+    let fk_target = [1, 0.75];
+    let lb = -Math.PI;
+    let ub = Math.PI;
+    
+        
+    let size = 30;
+    let q0 = new Array(size);
+    let q1 = new Array(size);
+    let z = new Array(size);
+    for (let i = 0; i < size; i++) {
+        q0[i] = q1[i] = lb + (ub - lb) * i / (size - 1);
+        z[i] = new Array(size);
+    }
+
+    
+    function dist(a, b) {
+        let d = 0;
+        for (let i = 0; i < a.length; i++) {
+            d += Math.pow(a[i] - b[i], 2);
+        }
+        return d;
+    }
+
+    function joint_limit_cost(q0, q1) {
+        let p = 8;
+        return Math.pow(q0 / Math.PI, p) + Math.pow(q1 / Math.PI, p);
+    }
+
+    function fk(q0, q1) {
+        return [
+            l1 * Math.cos(q0) + l2 * Math.cos(q0 + q1),
+            l1 * Math.sin(q0) + l2 * Math.sin(q0 + q1)
+        ];
+    };
+
+    function fk_joints(q0, q1) {
+        return [
+            [
+                l1 * Math.cos(q0),
+                l1 * Math.sin(q0)
+            ],
+            [
+                l1 * Math.cos(q0) + l2 * Math.cos(q0 + q1),
+                l1 * Math.sin(q0) + l2 * Math.sin(q0 + q1)
+            ]
+        ];
+    }
+
+    function cf(q0, q1) {
+        let x_fk = fk(q0, q1);
+        return dist(x_fk, fk_target);
+    };
+
+    
+    let q = [0, 0];
+    let L = 0.1;
+    const config = {
+        displayModeBar: false
+    };
+
+    const gd_color = 'rgb(242, 187, 19)';
+    let traceData = {
+        x : [q[0]],
+        y : [q[1]],
+        mode: 'lines',
+        line: {
+            color: gd_color,
+            width: 3
+        },
+        showscale: false
+    };
+    let tip_traceData = {
+        x : [q[0]],
+        y : [q[1]],
+        type: 'scatter',
+        marker: {
+            color: gd_color,
+        },
+        showscale: false
+    };
+    let contourData = {
+        z: z,
+        x: q0,
+        y: q1,
+        type: 'heatmap',
+        zsmooth : 'best',
+        showscale: false,
+        colorscale: 'YlGnBu',
+    };
+    let title_height = 40;
+    let title_color = 'rgb(255,255,255)';
+    let data = [contourData, traceData, tip_traceData];
+    let layout = {
+        autosize: false,
+        showlegend: false,
+        width: 350,
+        height: 350 + title_height,
+        xaxis: {
+            tickmode: 'array',
+            nticks: 0,
+            tickvals: [],
+            range: [lb, ub],
+            fixedrange: true, 
+            title: {
+                text: 'q<sub>0</sub>',
+                font: {
+                    color: title_color
+                }
+            }
+        },
+        yaxis: {
+            tickmode: 'array',
+            nticks: 0,
+            tickvals: [],
+            range: [lb, ub],
+            fixedrange: true, 
+            title: {
+                text: 'q<sub>1</sub>',
+                font: {
+                    color: title_color
+                }
+            }
+        },
+        margin: {
+            l: 20,
+            r: 0,
+            b: 20,
+            t: title_height,
+        },
+        hovermode: false,
+        title: {
+            text:'<b>Joint Space</b>',
+            font: {
+                family: 'Courier New, monospace',
+                size: 24,
+                color: title_color
+            }
+        },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0.25)'
+    };
+
+    function grad(q0, q1) {
+        let h = 1e-8;
+        let f = cf(q0, q1);
+        let f0 = cf(q0 + h, q1);
+        let f1 = cf(q0, q1 + h);
+        return [
+            (f0 - f) / h,
+            (f1 - f) / h
+        ];
+    }
+
+    function updateGradientDescent() {
+        let gd = grad(q[0], q[1]);
+        q[0] -= L * gd[0];
+        q[1] -= L * gd[1];
+        q[0] = Math.max(lb, Math.min(ub, q[0]));
+        q[1] = Math.max(lb, Math.min(ub, q[1]));
+
+        traceData.x.push(q[0]);
+        traceData.y.push(q[1]);
+        let nPoints = 10;
+        traceData.x.splice(0, traceData.x.length - nPoints);
+        traceData.y.splice(0, traceData.y.length - nPoints);
+        Plotly.restyle('cost_function', {
+            x : [contourData.x, traceData.x, [q[0]]],
+            y : [contourData.y, traceData.y, [q[1]]],
+            z : [z, [], []]
+        });
+    };
+
+    let point_traceData = {
+        x : [fk_target[0]],
+        y : [fk_target[1]],
+        type : 'scatter',
+        showscale: false
+    };
+
+    let robot_traceData = {
+        x : [l1, l1 + l2],
+        y : [0, 0],
+        type : 'line',
+        showscale: false
+    };
+
+    let cart_data = [point_traceData, robot_traceData];
+    let cart_layout = {
+        autosize: false,
+        showlegend: false,
+        width: 350,
+        height: 350 + title_height,
+        xaxis: {
+            tickmode: 'array',
+            nticks: 0,
+            tickvals: [],
+            range: [-2, 2],
+            fixedrange: true,
+            zeroline: false
+        },
+        yaxis: {
+            tickmode: 'array',
+            nticks: 0,
+            tickvals: [],
+            range: [-2, 2],
+            fixedrange: true
+        },
+        margin: {
+            l: 0,
+            r: 0,
+            b: 20,
+            t: title_height,
+        },
+        hovermode: false,
+        title: {
+            text:'<b>Cartesian Space</b>',
+            font: {
+                family: 'Courier New, monospace',
+                size: 24,
+                color: title_color
+            }
+        },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0.25)'
+    };
+
+    function updateCartesian() {
+        let joints = fk_joints(q[0], q[1]);
+        robot_traceData.x = [joints[0][0], joints[1][0]];
+        robot_traceData.y = [joints[0][1], joints[1][1]];
+        
+        point_traceData.x = [fk_target[0]];
+        point_traceData.y = [fk_target[1]];
+        Plotly.restyle('workspace', {
+            x : [[fk_target[0]], [0, joints[0][0], joints[1][0]]],
+            y : [[fk_target[1]], [0, joints[0][1], joints[1][1]]],
+        });
+    }
+
+
+    window.onload = () => {
+    
+        Plotly.newPlot('workspace', cart_data, cart_layout, config);
+        Plotly.newPlot('cost_function', data, layout, config);
+        
+        function updateContour() {
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    z[j][i] = cf(q0[i], q1[j], fk_target);
+                }
+            }
+        }
+        
+        let input = document.getElementById('workspace');
+        input.addEventListener('mousemove', (ev) => {
+            fk_target = [
+                4 * (ev.offsetX / input.offsetWidth - 0.5),
+                -4 * ((ev.offsetY - title_height) / (input.offsetHeight - title_height) - 0.5)
+            ]
+        });
+
+        setInterval(() => {
+            updateContour();
+        }, 50);
+
+        setInterval(() => {
+            updateGradientDescent();
+            updateCartesian();
+        }, 10);
+
+    };
+</script>
+<div id="workspace" style="display: inline-block; width:350px; height:370px; margin-top: 40px;"></div>
+<div id="cost_function" style="width:350px; height:370px; display: inline-block; margin-top: 40px;"></div>
+

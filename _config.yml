@@ -8,3 +8,6 @@ theme: just-the-docs
 color_scheme: dark
 scholar:
   style: modern-language-association
+
+markdown: kramdown
+highlighter: rouge

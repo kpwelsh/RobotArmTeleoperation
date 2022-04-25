@@ -284,6 +284,7 @@ DEPENDENCIES
   github-pages
   jekyll
   just-the-docs
+  rouge
   webrick (~> 1.7)
 
 BUNDLED WITH

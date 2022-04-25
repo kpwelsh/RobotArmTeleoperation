@@ -4,7 +4,13 @@ title: Overview
 nav_order: 1
 ---
 
-# Overview
+# Editing the Project/Technical Details
+
+Details on how to download, run and modify the Unity project for yourself as well as descriptions for all of the components involved can be found [here]({{ site.baseurl }}{% link behind_the_scenes/index.md %}).
+
+
+
+# Project Overview
 
 ## Motivation
 
@@ -19,6 +25,9 @@ While robotic teleoperation has the potential to achieve super-human performance
 Comparing this to [*The Box and Block Test (BBT)*](https://www.physio-pedia.com/Box_and_Block_Test), a human dexterity and motor function test designed to evaluate individuals with a range of neurological diagnoses, it is clear that modern human + robot systems, even with expert users, have yet to surpass a lone human system in terms of absolute performance[^2].
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/8nsn91JFYgE?start=55" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+## Contents
 
 This project was designed to further explore the performance gap between human and human + robot teleoperation performance. Developed in VR using Unity, this platform offers several useful components for measuring the impact of different performance factors:
 
