@@ -4,7 +4,7 @@ github_username: kpwelsh
 
 source: _docs
 
-theme: just-the-docs
+remote_theme: just-the-docs/just-the-docs
 color_scheme: dark
 scholar:
   style: modern-language-association
