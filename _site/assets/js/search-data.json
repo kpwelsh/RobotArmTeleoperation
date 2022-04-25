@@ -1,2 +1,188 @@
-{
+{"0": {
+    "doc": "Feedback Devices",
+    "title": "Feedback Devices",
+    "content": " ",
+    "url": "http://localhost:4000/behind_the_scenes/components/feedback_devices.html",
+    "relUrl": "/behind_the_scenes/components/feedback_devices.html"
+  },"1": {
+    "doc": "Grasp Handling",
+    "title": "Grasp Handling",
+    "content": "When interacting with the environment, it is typically not sufficient to rely on just Unity physics to grab and manipulate things. Opposing fingers that are constantly in contact with an object will require the physics engine to maintain tight position margins to prevent object clipping. The lack of necessary precision in this respect means that the friction phsyics options aren’t consistent and allow for frequent slipping1. The StickyGripper and Finger components were designed to improve this behavior. A StickyGripper keeps track of Rigidbodys that are being held, and connects them to the gripper via FixedJoint components. When the object is no longer being held, the FixedJoint is removed. While an object is being held, it is removed from Unity’s dynamics pipeline by setting it to be a kinematic Rigidbody. The StickyGripper relies on its Finger child components. The Finger component represents an articulable finger joint that can detect whether or not its in contact with an object. Each Finger contains a Trigger Collider that detects intesecting objects with the OnTriggerStay and OnTriggerExit methods. Because some gripper models contain multiple objects, links or joints, there is also the FingerPad component that can hold the contact detector and forward it’s contants to the main Finger. | | . | Shown is a single finger from the Franka Emika Panda gripper. The finger has normal colliders that coincide with the visual representation. However, the wireframe box on the finger pad shows the trigger collider that is used for grasp detection. | . At each FixedUpdate, the StickyGripper determines which objects are in contact with all fingers, and holds onto objects that are while dropping objects that are no longer in contact. | The phsyics materials are already configured for the end-effectors. To experience this for yourself, simply disable the StickyGripper component. &#8617; . | . ",
+    "url": "http://localhost:4000/behind_the_scenes/components/grasp_handling.html",
+    "relUrl": "/behind_the_scenes/components/grasp_handling.html"
+  },"2": {
+    "doc": "IK Plugins",
+    "title": "IK Plugins",
+    "content": "The core IK solver and Unity robot controller plugin is in 3 components that is built off of the RobotIKBase rust package. graph TD; Base[RobotIKBase]--&gt;WASM[robot_ik_wasm.js]; Base--&gt;Native[robot_ik_native.dll]; Native--&gt;IKInterface[IKInterface.cs]; WASM--&gt;IKInterface[IKInterface.cs]; The core, meaningful code is written in Rust, and is subsequently compiled for the native machine (to run the simulation through the Unity Editor) and for WebAssembly to run in the browser. For detailed instructions on how to correctly install and build these components, see the Installation page. IKInterface.cs conditionally compiles to look for one end point or the other depending on the build target. ",
+    "url": "http://localhost:4000/behind_the_scenes/components/ik_plugins.html",
+    "relUrl": "/behind_the_scenes/components/ik_plugins.html"
+  },"3": {
+    "doc": "IK Plugins",
+    "title": "IKInterface",
+    "content": "The IKInterface class serves to safely abstract which IK plugin is being used behind the scenes. It leverages some straightforward conditional compiling to either link to a native library, or one provided by a JS interface. public class IKInterface { #if UNITY_EDITOR [DllImport(\"robot_ik_native\", EntryPoint = \"new_solver\", CallingConvention = CallingConvention.Cdecl)] unsafe private static extern void* new_solver(string urdf, string ee_frame); [DllImport(\"robot_ik_native\", EntryPoint = \"solve\", CallingConvention = CallingConvention.Cdecl)] unsafe private static extern bool solve(void* solver_ptr, float* current_q, float[] target, float* q); [DllImport(\"robot_ik_native\", EntryPoint = \"set_self_collision\", CallingConvention = CallingConvention.Cdecl)] unsafe private static extern bool set_self_collision(void* solver_ptr, bool self_collision_enabled); [DllImport(\"robot_ik_native\", EntryPoint = \"deallocate\", CallingConvention = CallingConvention.Cdecl)] unsafe private static extern void deallocate(void* solver_ptr); #elif UNITY_WEBGL [DllImport(\"__Internal\")] unsafe private static extern void* new_solver(string urdf, string ee_frame); [DllImport(\"__Internal\")] unsafe private static extern bool solve(void* solver_ptr, float[] current_q, float[] target, float[] q); [DllImport(\"__Internal\")] unsafe private static extern bool set_self_collision(void* solver_ptr, bool self_collision_enabled); [DllImport(\"__Internal\")] unsafe private static extern void deallocate(void* solver_ptr); #endif ... } . In addition to wrapping the function end-points, it ensures that the memory allocated by the IK Solver is cleaned up when the IKInterface object is destroyed... ~IKInterface() { unsafe { deallocate(solver_ptr); } } ... ",
+    "url": "http://localhost:4000/behind_the_scenes/components/ik_plugins.html#ikinterface",
+    "relUrl": "/behind_the_scenes/components/ik_plugins.html#ikinterface"
+  },"4": {
+    "doc": "IK Plugins",
+    "title": "RobotIKNative",
+    "content": "The native plugin exposes the RobotIKBase rust package to Unity via a C interface. For details on how FFI’s in Rust work, check out the Rustonomicon. Code for this repo can be found here. Unity can load native plugins from dynamic libraries if they exist in the Assets\\Plugins folder. ",
+    "url": "http://localhost:4000/behind_the_scenes/components/ik_plugins.html#robotiknative",
+    "relUrl": "/behind_the_scenes/components/ik_plugins.html#robotiknative"
+  },"5": {
+    "doc": "IK Plugins",
+    "title": "RobotIKWASM",
+    "content": "While Unity support bundling a mix of C++, C# and JS directly into the WebAssembly build, it doesn’t (as of writing) support native inclusion of WebAssembly files. So the WebAssembly version of the plugin has three sub-componets. Firstly, the actual plugin is compiled from the RobotIKWASM Rust package. This produces a .wasm file and a js file to interface with it. Excerpt from the generated file, robot_ik_wasm.js: ... /** * @param {string} urdf * @param {string} ee_frame * @returns {number} */ export function new_solver(urdf, ee_frame) { var ptr0 = passStringToWasm0(urdf, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc); var len0 = WASM_VECTOR_LEN; var ptr1 = passStringToWasm0(ee_frame, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc); var len1 = WASM_VECTOR_LEN; var ret = wasm.new_solver(ptr0, len0, ptr1, len1); return ret; } ... This JS layer handles the memory management, data type transformation, and invokation of the WASM code. One thing to note is that, just like the native version, the wasm library call actually returns a *const IKSolver. However, we take advantage of the duplicity of pointers and integers and the permissiveness of JavaScript to simply reinterpret the bytes as a pointer when we pass them to the wasm code in the future. In addition to the layer from wasm &lt;-&gt; JS, there is another layer, located at Assets\\Plugins\\robot_ik_js_interface.jslib. This uses Unity API to transform the data between C# and JS as well as expose the libraries to the Unity WASM compiler. However, because the actual robot IK driver can’t be built with the rest of the project, it points the API to a placeholder object, RobotIK. The last piece of the puzzle is in Assets\\Plugins\\robot_ik_loader.jspre. Unity will execute *.jspre files before initialization of the core application. This one is used to declare the RobotIK placeholder, as well as dynamically load the actual IK plugin at runtime. Once these steps are in place, it functions much in the same way as the native plugin, with the exception that some data types (arrays, strings) need to be handled slightly differently. ",
+    "url": "http://localhost:4000/behind_the_scenes/components/ik_plugins.html#robotikwasm",
+    "relUrl": "/behind_the_scenes/components/ik_plugins.html#robotikwasm"
+  },"6": {
+    "doc": "Components",
+    "title": "Components",
+    "content": " ",
+    "url": "http://localhost:4000/behind_the_scenes/components/",
+    "relUrl": "/behind_the_scenes/components/"
+  },"7": {
+    "doc": "Task Models",
+    "title": "Task Models",
+    "content": " ",
+    "url": "http://localhost:4000/task_models/",
+    "relUrl": "/task_models/"
+  },"8": {
+    "doc": "Behind the Scenes",
+    "title": "Behind the Scenes",
+    "content": " ",
+    "url": "http://localhost:4000/behind_the_scenes/",
+    "relUrl": "/behind_the_scenes/"
+  },"9": {
+    "doc": "Overview",
+    "title": "Editing the Project/Technical Details",
+    "content": "Details on how to download, run and modify the Unity project for yourself as well as descriptions for all of the components involved can be found here. ",
+    "url": "http://localhost:4000/#editing-the-projecttechnical-details",
+    "relUrl": "/#editing-the-projecttechnical-details"
+  },"10": {
+    "doc": "Overview",
+    "title": "Project Overview",
+    "content": " ",
+    "url": "http://localhost:4000/#project-overview",
+    "relUrl": "/#project-overview"
+  },"11": {
+    "doc": "Overview",
+    "title": "Motivation",
+    "content": "Compared to autonomous robotics, developing a system for robotic teleoperation is typically seen as straightforward. By introducing a human operator the challenge of creating software that exhibits complex decision making, planning, and responsiveness are side stepped. However, simply introducing a human agent into the system does not result in a high performance system. Just last month, Daniel Rea and Stela Seo surveyed the field of teleoperation and concluded that effective teleoperation still requires highly trained expert users and calls for a . …[R]enewed focus in broad, user-centered research goals to improve teleoperation interfaces in everyday applications for non-experts…1 . While robotic teleoperation has the potential to achieve super-human performance, looking closesly at state of the art teleoperation systems suggests we have yet to achieve performance that is even comparable to a human. The following video shows several teleoperation systems, including a robot breaking the “break in case of emergency” glass with somewhat less urgency than optimal in an “emergency” situation. Comparing this to The Box and Block Test (BBT), a human dexterity and motor function test designed to evaluate individuals with a range of neurological diagnoses, it is clear that modern human + robot systems, even with expert users, have yet to surpass a lone human system in terms of absolute performance2. ",
+    "url": "http://localhost:4000/#motivation",
+    "relUrl": "/#motivation"
+  },"12": {
+    "doc": "Overview",
+    "title": "Contents",
+    "content": "This project was designed to further explore the performance gap between human and human + robot teleoperation performance. Developed in VR using Unity, this platform offers several useful components for measuring the impact of different performance factors: . | Realistic Task Models: . | Several robotic arm platforms with realistic dynamics | Task models based on real human dexterity evaluation tools . | Including variations that recreate the human tasks and those that are more kinematically favorable for robot manipulation | . | Realistic physical interactions | . | Robust Control Systems: . | An arm-agnostic realtime control system based on modern inverse kinematics algorithms | Knobs to control low level control variables . | Lowpass filters | Dynamic constraints (joint velocity and torque limits) | Latency | . | . | Variable Visual Feedback Modalities: . | Stereo VR | Mono VR | Single static camera | Muliple static cameras | . | Variable Input Device Support: . | 6DOF Unity XR/WebXR tracked devices | Interactive markers for keyboard and mouse | Unity supported gamepads (Xbox, PlayStation, Switch) | . | Web Deployability | Object Task Metrics . | Sub-task progress and completion time (WiP) | Remote task recording and replay (WiP) | . | . https://motion.cs.illinois.edu/RoboticSystems/InverseKinematics.html . | Still Not Solved: a call for renewed focus on user-centered teleoperation interfaces &#8617; . | This is not to dismiss the ROI of adding a robot when there are other factors involved (e.g. safety or convenience). &#8617; . | . ",
+    "url": "http://localhost:4000/#contents",
+    "relUrl": "/#contents"
+  },"13": {
+    "doc": "Overview",
+    "title": "Overview",
+    "content": " ",
+    "url": "http://localhost:4000/",
+    "relUrl": "/"
+  },"14": {
+    "doc": "Input Devices",
+    "title": "Input Devices",
+    "content": " ",
+    "url": "http://localhost:4000/behind_the_scenes/components/input_devices.html",
+    "relUrl": "/behind_the_scenes/components/input_devices.html"
+  },"15": {
+    "doc": "Installation",
+    "title": "Installation",
+    "content": " ",
+    "url": "http://localhost:4000/behind_the_scenes/installation.html",
+    "relUrl": "/behind_the_scenes/installation.html"
+  },"16": {
+    "doc": "Installation",
+    "title": "Building Robot Arm IK Controller",
+    "content": "The code that determines the joint angles from a target end-effector pose written in Rust with interfaces for both native C libraries and WebAssembly. To build and deploy this Unity project as a web application, you will need the WebAssembly files. To build this project for a native target, or to run it in the editor, you will need to build the native rust package from source and install it into the appropriate Unity project folder. See the IK Plugins page for details on how these packages connect to Unity. Building From Source . Building Rust . To compile the source code, you will need to have rust + cargo (rust package manager) installed. Follow the instructions on the Rust Homepage if you don’t already. Installing RobotIKNative . Clone the source code and compile with1: . git clone https://github.com/kpwelsh/RobotIKNative cd RobotIKNative cargo build --release . This will create dynamic library at target/release/robot_ik_native. Then, simply place this file in the Assets/Plugins folder in the Unity project. If there was already a robot_ik_native there, you will need to restart the Unity Editor to see the effect, since Unity caches these plugins. This allows the code contained in IKInterface to find it. Installing RobotIKWASM . The RobotIKWASM js plugin and WASM binaries are included in this project. If they are not found in the Unity build folder, then copy the contents of /RobotIKWASM-Plugin at the project root directory to the Build folder in the build directory (default location: /build/Build). If you want to rebuild the robot_ik_wasm plugin, you will need to install wasm-pack with cargo install wasm-pack . Then, you can perform a similar build step as with the native plugin to clone and build the source code: . git clone https://github.com/kpwelsh/RobotIKWASM cd RobotIKWASM cargo build --release wasm-pack build --target web . Building for the web target generates js with the correct paradigm for easy inclusion into a Unity build. Finally, you can take robot_ik_wasm.js and robot_ik_wasm_bg.wasm and place them in the Build directory. Then, if everything went corretly, you should be able to build your Unity project with ctrl+b, ctrl+shift+b or from the build menu. ",
+    "url": "http://localhost:4000/behind_the_scenes/installation.html#building-robot-arm-ik-controller",
+    "relUrl": "/behind_the_scenes/installation.html#building-robot-arm-ik-controller"
+  },"17": {
+    "doc": "Installation",
+    "title": "Running the Unity Project",
+    "content": "This project makes use of multiple input devices (most notably VR), and typically compiles for a WebGL target. You can change the compile target under File-&gt;Build Settings. | Several of the dependencies in these trees point to git branches. Cargo will cache this kind of code. If there appears to be a mismatch between whats on GitHub and what your compiler is telling you, try updating the packages with cargo update. &#8617; . | . ",
+    "url": "http://localhost:4000/behind_the_scenes/installation.html#running-the-unity-project",
+    "relUrl": "/behind_the_scenes/installation.html#running-the-unity-project"
+  },"18": {
+    "doc": "Modified Components",
+    "title": "URDF Importer",
+    "content": "Capsules + WebGL . ",
+    "url": "http://localhost:4000/behind_the_scenes/modified_components.html#urdf-importer",
+    "relUrl": "/behind_the_scenes/modified_components.html#urdf-importer"
+  },"19": {
+    "doc": "Modified Components",
+    "title": "Modified Components",
+    "content": " ",
+    "url": "http://localhost:4000/behind_the_scenes/modified_components.html",
+    "relUrl": "/behind_the_scenes/modified_components.html"
+  },"20": {
+    "doc": "Robot Arms",
+    "title": "Robot Models",
+    "content": "This project focuses on the dexterity of human + robot systems on a table-top scale with robot arms. When comparing which robot arms are effective for teleoperation, the two main factors to consider are the kinematic and dynamic profiles. ",
+    "url": "http://localhost:4000/task_models/robot_models.html#robot-models",
+    "relUrl": "/task_models/robot_models.html#robot-models"
+  },"21": {
+    "doc": "Robot Arms",
+    "title": "Kinematics",
+    "content": "In simulation, the most obvious challenge when controlling a robot arm is generating good solutions to the inverse kinematics problem for control. The performance of a human + robot teleoperation system is highly dependent on the ability to generate feasbile and smooth robot motions from human inputs. And in turn, the ability to generate such motions can depend on subtleties of the particular robot kinematics1. ",
+    "url": "http://localhost:4000/task_models/robot_models.html#kinematics",
+    "relUrl": "/task_models/robot_models.html#kinematics"
+  },"22": {
+    "doc": "Robot Arms",
+    "title": "Dynamics",
+    "content": "When simulating a robot arm, it is possible to completely ignore the dynamic constraints by generating un-physical motions. While this choice simplifies the system significantly, it is often the case that robot arms with more favorable kinematics have stricter dynamic constraints and ignoring them would lead one to conclude that certain arms are better than they are for a real task. This project aims to both offer a reasonable facsimile of real robot dynamics as well as the option to change the dynamics to explore the effect on task performance. ",
+    "url": "http://localhost:4000/task_models/robot_models.html#dynamics",
+    "relUrl": "/task_models/robot_models.html#dynamics"
+  },"23": {
+    "doc": "Robot Arms",
+    "title": "Included Robots",
+    "content": "Franka Emika Panda . Kuka iiwa7 . Sawyer . Baxter . UR5 . | A thorough description of the complexities of robot inverse kinematics can be found here. &#8617; . | . ",
+    "url": "http://localhost:4000/task_models/robot_models.html#included-robots",
+    "relUrl": "/task_models/robot_models.html#included-robots"
+  },"24": {
+    "doc": "Robot Arms",
+    "title": "Robot Arms",
+    "content": " ",
+    "url": "http://localhost:4000/task_models/robot_models.html",
+    "relUrl": "/task_models/robot_models.html"
+  },"25": {
+    "doc": "Painting",
+    "title": "Surface Painting",
+    "content": "Writing directly to a texture based on spatial proximity is not something that is available in Unity by default. This is where the Canvas and Marker components come in. ",
+    "url": "http://localhost:4000/behind_the_scenes/components/surface_painting.html#surface-painting",
+    "relUrl": "/behind_the_scenes/components/surface_painting.html#surface-painting"
+  },"26": {
+    "doc": "Painting",
+    "title": "Canvas",
+    "content": "The DrawableMesh component exposes two operations: Clear, which removes all current markings on the texture, and Draw, which adds new markings to the mesh. The Draw function takes a 3D capsule in world-space and compares it the mesh, adding the specified color over the texture wherever they intersect. This effect is achieved by maintaining 3 separate textures with a custom surface shader to layer the marker with the original texture, and a custom unlit shader that checks each pixel for intersection with the world-space capsule to determine whether or not it should be marked. Unity Shaders . A “shader” in Unity is simply a program that is compiled for and run on the GPU. A shader can be attached to a material, and is used to determine the color and lighting properties of a specific point on the surface of a mesh. The Unity shader infrastruture is set up to minimize the amount of work that is required of developers. For a simple surface shader, all that is needed is to create a function that maps the UV cooridnates to a struct of color properties. An example can be seen in the following section. Canvas.shader . This custom shader is a simple surface shader that performs an alpha blending to layer the marker on top of the original mesh texture1. The following is an excerpt from Canvas.shader with the boilerplate code elided: ... sampler2D _MainTex; sampler2D _Marker; struct Input { float2 uv_MainTex; }; ... void surf (Input IN, inout SurfaceOutputStandard o) { // Albedo comes from a texture tinted by color fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color; fixed4 marker_color = tex2D(_Marker, IN.uv_MainTex); o.Albedo = marker_color.rgb * marker_color.a + c.rgb * (1 - marker_color.a); // Metallic and smoothness come from slider variables o.Metallic = _Metallic * (1 - marker_color.a); o.Smoothness = _Glossiness * (1 - marker_color.a); o.Alpha = marker_color.a * marker_color.a + c.a * (1 - marker_color.a); } ... In this example, the function surf takes a UV coordinate as an input, in the form of an Input struct... struct Input { float2 uv_MainTex; }; ... void surf (Input IN ..... It then looks up the color of the original texture as well as the marker texture to overlay, blends them together, and stores the result in the output parameter, ..., inout SurfaceOutputStandard o)... sampler2D _MainTex; sampler2D _Marker; ... // Albedo comes from a texture tinted by color fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color; fixed4 marker_color = tex2D(_Marker, IN.uv_MainTex); o.Albedo = marker_color.rgb * marker_color.a + c.rgb * (1 - marker_color.a); // Metallic and smoothness come from slider variables o.Metallic = _Metallic * (1 - marker_color.a); o.Smoothness = _Glossiness * (1 - marker_color.a); o.Alpha = marker_color.a * marker_color.a + c.a * (1 - marker_color.a); ... The thread-global parameters _MainTex and _Marker are set by the Unity material object and the DrawableMesh component, respectively. // Start is called before the first frame update void Start() { // Read the texture attached to our gameObject. Texture mainTex = GetComponent&lt;MeshRenderer&gt;().material.mainTexture; // Create a new blank texture to hold the marker layer. MarkerTex = new Texture2D(1024, 1024, TextureFormat.RGBAFloat, false); fill(MarkerTex, new Color(0,0,0,0)); ... // Give the shader a pointer to the marker texture. GetComponent&lt;MeshRenderer&gt;().material.SetTexture(\"_Marker\", MarkerTex); } . | Marker Texture | Main Texture | Rendered Result | . | | | | . ",
+    "url": "http://localhost:4000/behind_the_scenes/components/surface_painting.html#canvas",
+    "relUrl": "/behind_the_scenes/components/surface_painting.html#canvas"
+  },"27": {
+    "doc": "Painting",
+    "title": "Creating the Marker Overlay",
+    "content": "To determine whether or not a pixel should be marked, we need to generate a map from UV space to world-space2. To do this, we are going to create a texture the same size as _Marker that will hold the 3D coordinates of each point in the RGB fields3. This approach requires rasterizing the mesh to the texture, using the UV coordinates of each vertex instead of its world coordinates. To avoid writing a custom CPU rasterization algorithm and make use of Unity’s render pipeline, we will opt to create a mesh in the unity world and take a picture of it using an orthographic camera. | World Space Cup Model | UV Unwrapped, Position Colored Mesh | . | | | . RasterizeUV Function . To generate the colored mesh, we only need to loop through all of the vertices of the current mesh and make a new one with the vertex positions equal to the UV positions, and the color equal to the vertex position. We begin by looping through the vertices to create an axis aligned bounding box specified by the minimum corner and the size along each axis. For convenience later, we will store the inverse of the size in a vector as scale. private void RasterizeUV() { var mesh = GetComponent&lt;MeshFilter&gt;().mesh; float[] min = new float[]{float.MaxValue, float.MaxValue, float.MaxValue}; float[] max = new float[]{float.MinValue, float.MinValue, float.MinValue}; foreach (Vector3 v in mesh.vertices) { for (int i = 0; i &lt; 3; i++) { min[i] = Mathf.Min(min[i], v[i]); max[i] = Mathf.Max(max[i], v[i]); } } Vector3 lower = new Vector3(min[0], min[1], min[2]); Vector3 scale = new Vector3( 1 / (0.000001f + max[0] - min[0]), 1 / (0.000001f + max[1] - min[1]), 1 / (0.000001f + max[2] - min[2]) ); ... Next, we create a list of vertices from the UV coordinates. Here, mesh.uv stores the uv coordinates for each vertex4. We will choose z = 0 for simplicity. We then loop again to set the color of our new vertices. The Color struct stores rgba values as floats in [0, 1], so we transform our object coordinates to normalized coordinates using the bounding box we computed previously. Finally, we store a transformation matrix that maps normalized coordinates back to object coordinates to use in the shader later... // Set the positions float aspectRatio = ((float)MarkerTex.width) / MarkerTex.height; Vector3[] newVertices = new Vector3[mesh.uv.Length]; for (int i = 0; i &lt; newVertices.Length; i++) { newVertices[i] = new Vector3(mesh.uv[i].x * aspectRatio, mesh.uv[i].y, 0); } // Set the colors Color[] colors = new Color[newVertices.Length]; for (int i = 0; i &lt; colors.Length; i++) { Vector3 c = mesh.vertices[i] - lower; c.Scale(scale); colors[i] = new Color(c.x, c.y, c.z, 1); } NormalizedToObj = Matrix4x4.TRS( lower, Quaternion.identity, new Vector3(max[0] - min[0], max[1] - min[1], max[2] - min[2]) ); ... Now that we have the vertices and colors correct, we just need to create and render our mesh. For this, we will create two gameobjects: a camera and the UV mesh. To ensure the color of the new mesh is not affected by lighting, we assign an unlit material (called UVRaster here) to it. To ensure this camera only sees our new mesh, we create a Layer in the Unity Editor, assign it to our mesh, and tell the camera to only render that layer. Additionally, we will disable the camera script to prevent it from rendering every frame, since we only want to take a single picture, and assign a Render Texture as the target to render to... GameObject raster_obj = new GameObject(); raster_obj.AddComponent&lt;MeshFilter&gt;().mesh = new Mesh(); var uv_mesh = raster_obj.GetComponent&lt;MeshFilter&gt;().mesh; uv_mesh.vertices = newVertices; uv_mesh.colors = colors; uv_mesh.triangles = mesh.triangles; // Mesh postprocessing uv_mesh.RecalculateNormals(); uv_mesh.RecalculateTangents(); // Create the game object and assign our raster_obj.layer = LayerMask.NameToLayer(\"UVRaster\"); raster_obj.AddComponent&lt;MeshRenderer&gt;(); raster_obj.GetComponent&lt;MeshRenderer&gt;().material = UVRaster; GameObject cam_obj = new GameObject(); cam_obj.transform.localPosition = new Vector3(aspectRatio / 2, 0.5f, -1); cam_obj.AddComponent&lt;Camera&gt;(); Camera cam = cam_obj.GetComponent&lt;Camera&gt;(); cam.orthographic = true; cam.orthographicSize = 0.5f; cam.cullingMask = LayerMask.GetMask(\"UVRaster\"); cam.enabled = false; cam.targetTexture = new RenderTexture(MarkerTex.width, MarkerTex.height, 0, RenderTextureFormat.ARGBFloat); cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0,0,0,0); ... Finally, we ask the camera to render to the texture. Since the Render Texture buffer data is stored on the GPU, we will create a new Texture2D and copy the data from the Render Texture into that. Then we can clean up by destroying both the camera and the UV mesh. We will also go ahead and set the _UVPosition parameter of our shader so it has it when it comes time to draw... cam.Render(); uvPositionTexture = new Texture2D(MarkerTex.width, MarkerTex.height, TextureFormat.RGBAFloat, false); RenderTexture.active = cam.targetTexture; uvPositionTexture.ReadPixels(new Rect(0, 0, MarkerTex.width, MarkerTex.height), 0, 0); uvPositionTexture.Apply(); RenderTexture.active = null; DrawMat.SetTexture(\"_UVPosition\", uvPositionTexture); Destroy(raster_obj); Destroy(cam_obj); Initialized = true; } . Draw Function . Now that we have rasterized the UV mesh onto a texture, we have all of the peices we need to start drawing. The simplest thing to draw is a single point with a specified radius. However, we may not be calling this function with a super high frequency, it allows the caller to specify a value for lastDrawPoint to interpolate from. This amounts to intersecting the mesh with a cylinder specified by a line segment and a radius. public void Draw(Vector3 drawPoint, float radius, Color drawColor, Vector3? lastDrawPoint = null) { if (!Initialized) return; ... The DrawMatShader shader is going to need several parameters, so we set those here. The radius, color, and line segment are taken as inputs from the caller, but we also will pass it a transformation matrix to transform the coordinates stored in the color values of the _UVPosition texture into world coordinates based on our object’s current pose... DrawMat.SetColor(\"_DrawColor\", drawColor); DrawMat.SetFloat(\"_Radius\", radius); DrawMat.SetMatrix( \"_NormalizedToWorld\", Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale) * NormalizedToObj ); DrawMat.SetVector(\"_DrawPoint\", new Vector4(drawPoint.x, drawPoint.y, drawPoint.z, 0)); Vector3 last = lastDrawPoint.GetValueOrDefault(drawPoint); DrawMat.SetVector(\"_LastDrawPoint\", new Vector4(last.x, last.y, last.z, 0)); ... Then, the actual work is done by using Unity’s Blit function to update our current marker overlay with any new marks. Then we can simply read the result back into the marker overlay texture, knowing that it will get rendered over our base material texture when a camera is looking at it... RenderTexture tmp = RenderTexture.GetTemporary(MarkerTex.width, MarkerTex.height); // This first call to Blit stores the current marker overlay texture // into tmp Graphics.Blit(MarkerTex, tmp); // Then we invoke DrawMatShader on the uvPositionTexture with the parameters // we just set, and store the result in tmp as well. // By passing a material with our shader attached into Blit, it will run that // shader Graphics.Blit(uvPositionTexture, tmp, DrawMat); RenderTexture.active = tmp; MarkerTex.ReadPixels(new Rect(0, 0, MarkerTex.width, MarkerTex.height), 0, 0); MarkerTex.Apply(); RenderTexture.active = null; RenderTexture.ReleaseTemporary(tmp); } . DrawMatShader Fragment Shader . The final piece of code here is the shader that checks each pixel in the marker texture to see if it should be marked or not. There are two things to call out here. Firstly, this shader uses an alpha blend option of ... Blend SrcAlpha OneMinusSrcAlpha ... This just ensures that we don’t forget about old markings on the marker overlay when we Blit the new marks onto it. Secondly, the actual code that is being run for each pixel: ... float4 frag (v2f i) : SV_Target { if (_Radius &lt; 0) return float4(0,0,0,0); float r = _Radius * _Radius; float3 pos = tex2D(_UVPosition, i.uv).rgb; pos = mul(_NormalizedToWorld, float4(pos, 1)).xyz; float3 a = pos - _DrawPoint; float3 b = pos - _LastDrawPoint; if (dot(a, a) &lt;= r || dot(b, b) &lt;= r) { return _DrawColor; } float3 n = _LastDrawPoint - _DrawPoint; float l = sqrt(dot(n,n)); n = n / l; float projectedDistance = dot(a, n); if (projectedDistance &gt;= 0 &amp;&amp; projectedDistance &lt;= l &amp;&amp; dot(a, a) - projectedDistance * projectedDistance &lt;= r) { return _DrawColor; } return float4(0,0,0,0); } ... In this function, we extract the position from the texture color, transform it from normalized to world coordinates, and check the distance to the line segment to see if that pixel should be the marker color, or transparent. ",
+    "url": "http://localhost:4000/behind_the_scenes/components/surface_painting.html#creating-the-marker-overlay",
+    "relUrl": "/behind_the_scenes/components/surface_painting.html#creating-the-marker-overlay"
+  },"28": {
+    "doc": "Painting",
+    "title": "Marker",
+    "content": "The Marker component serves only to trigger Draw calls to DrawableMeshes in the scene. To do this, it has a trigger collider that represents the marker “tip”. When it intersects with a DrawableMesh, it draws on the mesh at the closest point to the tip. void OnTriggerStay(Collider other) { DrawableMesh dm = other.gameObject.GetComponent&lt;DrawableMesh&gt;(); if (dm != null) { if (!MeshDrawHistory.ContainsKey(dm)) { MeshDrawHistory.Add(dm, null); } Vector3 point = other.ClosestPoint(Tip.position); Vector3 last = MeshDrawHistory[dm].GetValueOrDefault(point); MeshDrawHistory[dm] = point; dm.Draw(point, Size, DrawColor, last); } } . | This is also possible to do by adding a second material to the mesh and using Unity’s built in texture blending options. &#8617; . | Shader code gets called for every pixel in the camera that is occupied by our object. To determine which things are visible, Unity already maps world-space coords to UV coords and you can receive it as an additional parameter in your shader function. So, it might be tempting to try to use the already known values. However, this proves difficult, since the resolution and whether or not the function is even called is determined by the camera position and parameters, which means things wouldn’t be drawn if you weren’t looking at them. Also, since you are not allowed to write global data in a shader thread, you can’t accumulate markings. So, we are out of luck and need to do it ourselves. &#8617; . | Overloading texture color data is a common way to do other things with shaders than render colors. &#8617; . | Unity Meshs can have multiple sets of UV coordinates. Loading uvs to the wrong channel when importing, or not explicitly generating them at all when making the mesh would cause this code to fail. &#8617; . | . ",
+    "url": "http://localhost:4000/behind_the_scenes/components/surface_painting.html#marker",
+    "relUrl": "/behind_the_scenes/components/surface_painting.html#marker"
+  },"29": {
+    "doc": "Painting",
+    "title": "Painting",
+    "content": " ",
+    "url": "http://localhost:4000/behind_the_scenes/components/surface_painting.html",
+    "relUrl": "/behind_the_scenes/components/surface_painting.html"
+  },"30": {
+    "doc": "Tasks",
+    "title": "Tasks",
+    "content": " ",
+    "url": "http://localhost:4000/task_models/tasks.html",
+    "relUrl": "/task_models/tasks.html"
+  }
 }
