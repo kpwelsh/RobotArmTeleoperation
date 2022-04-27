@@ -7,7 +7,15 @@ math: mathjax
 mermaid: True
 ---
 
-# IK Plugins
+# Usage
+
+The provided IK Solving Plugins are made available via the ```NativeRobotController``` component. In general, an implementation of ```RobotController``` should be present on each robot arm. The controller allows for the specification of a hand joint (where end effectors will be attached to), URDF model, initial joint configuration for seeding the solver, a pointer to the IK Target that should be tracked, and the name of the hand joint to give to the IK Plugin.
+
+![Native Plugin Controller](/assets/imgs/2022-04-27-11-11-41.png)
+
+While running, the controller will transform the IK Target into its local frame, transform it into a canonical right handed coordinate frame for the IK plugin, and command the positions of the joints. The dynamics of each joint can be controlled on a global level as well to modify behavior to be more or less sluggish and responsive.
+
+# Technical Details
 
 The core IK solver and Unity robot controller plugin is in 3 components that is built off of the [RobotIKBase](https://github.com/kpwelsh/RobotIKBase) rust package.
 <div class="mermaid">

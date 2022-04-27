@@ -4,8 +4,6 @@ github_username: kpwelsh
 
 remote_theme: just-the-docs/just-the-docs
 color_scheme: dark
-scholar:
-  style: modern-language-association
 
 markdown: kramdown
 highlighter: rouge
