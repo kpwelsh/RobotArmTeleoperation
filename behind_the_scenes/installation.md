@@ -53,7 +53,7 @@ Then, if everything went corretly, you should be able to build your Unity projec
 
 This project makes use of multiple input devices (most notably VR), and typically compiles for a WebGL target. You can change the compile target under **File->Build Settings**.
 
-![Build Settings](/assets/imgs/2022-04-21-15-09-07.png)
+![Build Settings]({{site.baseurl}}/assets/imgs/2022-04-21-15-09-07.png)
 
 
 

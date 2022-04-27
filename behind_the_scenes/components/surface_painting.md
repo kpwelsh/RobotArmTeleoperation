@@ -106,7 +106,7 @@ The thread-global parameters ```_MainTex``` and ```_Marker``` are set by the Uni
 
 | Marker Texture | Main Texture | Rendered Result |
 | :---: | :---: | :---: |
-| ![Marker Overlay](/assets/imgs/marker_overlay.png) | ![UW Madison Logo](/assets/imgs/uw-madisonlogo.png) | ![UW Madison Logo](/assets/imgs/uw-madisonlogo-drawn.png) |
+| ![Marker Overlay]({{site.baseurl}}/assets/imgs/marker_overlay.png) | ![UW Madison Logo]({{site.baseurl}}/assets/imgs/uw-madisonlogo.png) | ![UW Madison Logo]({{site.baseurl}}/assets/imgs/uw-madisonlogo-drawn.png) |
 
 
 ## Creating the Marker Overlay
@@ -115,7 +115,7 @@ To determine whether or not a pixel should be marked, we need to generate a map 
 
 | World Space Cup Model | UV Unwrapped, Position Colored Mesh |
 | :---: | :---: |
-| ![Cup Model](/assets/imgs/2022-04-25-14-32-17.png) | ![UV Rasterisation](/assets/imgs/2022-04-25-14-32-55.png) |
+| ![Cup Model]({{site.baseurl}}/assets/imgs/2022-04-25-14-32-17.png) | ![UV Rasterisation]({{site.baseurl}}/assets/imgs/2022-04-25-14-32-55.png) |
 
 ### ```RasterizeUV``` Function
 

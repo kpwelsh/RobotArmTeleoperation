@@ -19,12 +19,12 @@ When simulating a robot arm, it is possible to completely ignore the dynamic con
 
 ### Franka Emika Panda
 
-![Panda](/assets/imgs/panda_specs.png)
+![Panda]({{site.baseurl}}/assets/imgs/panda_specs.png)
 
 
 ### Kuka iiwa7
 
-![IIWA7](/assets/imgs/iiwa7_specs.png)
+![IIWA7]({{site.baseurl}}/assets/imgs/iiwa7_specs.png)
 
 ### Sawyer
 

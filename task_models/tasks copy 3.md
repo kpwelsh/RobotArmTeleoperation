@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Tasks
+title: Complex Dexterity
 parent: Task Models
 nav_order: 2
 ---

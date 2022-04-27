@@ -15,4 +15,4 @@ When creating a new end effector, you can specify the ```IKPoint``` and handle a
 
 | Example Gripper End Effector |
 | :---: |
-| ![Gripper](/assets/imgs/2022-04-27-10-31-19.png) |
+| ![Gripper]({{site.baseurl}}/assets/imgs/2022-04-27-10-31-19.png) |

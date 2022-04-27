@@ -1,6 +1,0 @@
-* Fork URDF-Importer to support
-    * Capsule geometry --- Maybe done...?
-    * WebGL -- Idk whats going on here.
-
-
-* Maybe just write a competing URDF importer....

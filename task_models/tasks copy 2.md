@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Tasks
+title: Painting
 parent: Task Models
 nav_order: 2
 ---
