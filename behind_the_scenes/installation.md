@@ -21,6 +21,8 @@ The code that determines the joint angles from a target end-effector pose writte
 
 ### Building From Source
 
+Building the IK plugin from source is not always necessary. A DLL is included in the project, but may not be compatible with your operating system. If you experience issues, follow these instructions for building the Rust plugin from source.
+
 #### Building Rust
 
 To compile the source code, you will need to have rust + cargo (rust package manager) installed. Follow the instructions on the [Rust Homepage](https://www.rust-lang.org/tools/install) if you don't already.
