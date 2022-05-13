@@ -6,6 +6,15 @@ parent: Behind the Scenes
 
 # Installation
 
+## Initializing the Unity Project
+
+The minimum required to run this project is to
+1. clone this repo with ```git clone https://github.com/kpwelsh/RobotArmTeleoperation.git```
+2. Follow the steps [here](https://support.unity.com/hc/en-us/articles/4402520287124-How-do-I-add-a-project-saved-on-my-computer-into-the-Unity-Hub-) to add this project in Unity Hub.
+3. Use Unity Hub to install version 2021.2.7. Some WebXR related components may not work with higher versions. Follow [these instructions](https://support.unity.com/hc/en-us/articles/4402520309908-How-do-I-add-a-version-of-Unity-that-does-not-appear-in-the-Hub-installs-window-) if that version is not immediately available in Unity Hub.
+
+Then, you should be able to open and run the Unity Editor to explore the project. See the [Build Settings]({{ site.baseurl }}{% link behind_the_scenes/build_settings.md %}) page for details on how to build and deploy the project for a WebGL or native target.
+
 ## Building Robot Arm IK Controller
 
 The code that determines the joint angles from a target end-effector pose written in Rust with interfaces for both native C libraries and WebAssembly. To build and deploy this Unity project as a web application, you will need the WebAssembly files. To build this project for a native target, or to run it in the editor, you will need to build the native rust package from source and install it into the appropriate Unity project folder. See the [IK Plugins]({{ site.baseurl }}{% link behind_the_scenes/components/ik_plugins.md %}) page for details on how these packages connect to Unity.
