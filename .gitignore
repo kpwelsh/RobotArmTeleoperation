@@ -10,6 +10,14 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
+!/[Bb]uild/
+
+/[Bb]uild/*
+!/[Bb]uild/Build/
+
+/[Bb]uild/Build/*
+!/[Bb]uild/Build/robot_ik_wasm*
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
