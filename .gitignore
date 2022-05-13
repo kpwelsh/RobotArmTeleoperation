@@ -10,6 +10,7 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
+# Don't ignore the plugin related files
 !/[Bb]uild/
 
 /[Bb]uild/*
