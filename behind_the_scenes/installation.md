@@ -33,7 +33,7 @@ Clone the source code and compile with[^1]:
     cd RobotIKNative
     cargo build --release
 
-This will create dynamic library at ```target/release/robot_ik_native```. Then, simply place this file in the ```Assets/Plugins``` folder in the Unity project. If there was already a ```robot_ik_native``` there, you will need to restart the Unity Editor to see the effect, since Unity caches these plugins. This allows the code contained in ```IKInterface``` to find it. 
+This will create dynamic library at ```target/release/robot_ik_native```. Then, simply place this file in the ```Assets/Plugins``` folder in the Unity project. If you are replacing a ```robot_ik_native.dll``` file that is already there, you may need to restart the Unity Editor to be able remove the old one, since Unity caches these plugins and prevents the modification of DLLs while they are cached. Simply placing this DLL in this plugins folder with the correct name allows allows the code contained in ```IKInterface``` to find it. 
 
 
 #### Installing RobotIKWASM
