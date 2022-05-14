@@ -59,5 +59,3 @@ This project was designed to further explore the performance gap between human a
 
 [^1]: Still Not Solved: a call for renewed focus on user-centered teleoperation interfaces
 [^2]: This is not to dismiss the ROI of adding a robot when there are other factors involved (e.g. safety or convenience).
-
-https://motion.cs.illinois.edu/RoboticSystems/InverseKinematics.html

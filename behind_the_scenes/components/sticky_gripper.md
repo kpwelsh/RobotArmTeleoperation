@@ -22,7 +22,7 @@ When the gripper is activated, the ```Gripper Lower Limit``` and ```Gripper Uppe
 
 # Technical Details
 
-When interacting with the environment, it is typically not sufficient to rely on just Unity physics to grab and manipulate things. Opposing fingers that are constantly in contact with an object will require the physics engine to maintain tight position margins to prevent object clipping. The lack of necessary precision in this respect means that the friction phsyics options aren't consistent and allow for frequent slipping[^1].
+When interacting with the environment, it is typically not sufficient to rely on  to grab and manipulate things. Opposing fingers that are constantly in contact with an object will require the physics engine to maintain tight position margins to prevent object clipping. The lack of necessary precision in this respect means that the friction physics options aren't consistent and allow for frequent slipping and/or penetration[^1].
 
 The ```StickyGripper``` and ```Finger``` components were designed to improve this behavior. A ```StickyGripper``` keeps track of ```Rigidbody```s that are being held, and connects them to the gripper via ```FixedJoint``` components. When the object is no longer being held, the ```FixedJoint``` is removed. While an object is being held, it is removed from Unity's dynamics pipeline by setting it to be a *kinematic* ```Rigidbody```. 
 
@@ -36,4 +36,4 @@ The ```StickyGripper``` relies on its ```Finger``` child components. The ```Fing
 At each [```FixedUpdate```](https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html), the ```StickyGripper``` determines which objects are in contact with *all* fingers, and holds onto objects that are while dropping objects that are no longer in contact.
 
 
-[^1]: The phsyics materials are already configured for the end-effectors. To experience this for yourself, simply disable the ```StickyGripper``` component.
+[^1]: The physics materials are already configured for the end-effectors. To experience this for yourself, simply disable the ```StickyGripper``` component.

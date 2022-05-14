@@ -2248,3 +2248,5 @@ figure.highlight pre, figure.highlight code { padding: 0; margin: 0; border: 0; 
   pre.highlight { border: 1px solid #eeebee; }
   .main { max-width: none; margin-left: 0; } }
 .site-header { min-width: 300px; }
+
+img.centered { display: block; margin-left: auto; margin-right: auto; }

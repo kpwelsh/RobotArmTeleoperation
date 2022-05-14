@@ -2,6 +2,7 @@
 layout: default
 title: Installation
 parent: Behind the Scenes
+nav_order: 1
 ---
 
 # Installation

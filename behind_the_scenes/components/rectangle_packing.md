@@ -35,3 +35,37 @@ Generating an optimal [rectangle packing](https://en.wikipedia.org/wiki/Rectangl
 3. The order in which the rectangles are provided is the order in which they should appead (from top-left to bottom-right).
 
 With these assumptions, it seeks to break the input list into rows that result in the "best packed" configuration, as measured by the fraction of unfilled space in the resulting arrangement. With this goal, it simply tries all of the allowed configurations and chooses the best one.
+
+
+{% highlight csharp %}
+public static RectangleArrangement Arrange(List<Vector2> rectangles, float outAspect,
+                                                int rows = -1, int cols = -1,
+                                                Justification hJustification = Justification.Left,
+                                                Justification vJustification = Justification.Left) {
+    float bestRatio = -1;
+    RectangleArrangement bestArrangement = null;
+    // Iterate over all of the possible combinations
+    // Becuase of assumption 1,2, and 3, simply specifying the number of rectangles
+    // uniquely specifies the arrangement.
+    foreach (List<int> rowSizes in possibleRows(rectangles.Count, rows, cols)) {
+        // For each one, generate the specific rectangle arrangement
+        // This computes the top left points as well as the width and height of each rectangle
+        // as well as the dimensions of the minimum bounding rectangle
+        RectangleArrangement arrangement = 
+            arrangeRectangles(
+                placeRectangles(rowSizes, rectangles),
+                outAspect,
+                hJustification,
+                vJustification
+        );
+        // If this is a good fill ratio, then store it as the best
+        // arrangement
+        float ratio = arrangement.fillRatio();
+        if (ratio > bestRatio) {
+            bestArrangement = arrangement;
+            bestRatio = ratio;
+        }
+    }
+    return bestArrangement;
+}
+{% endhighlight %}

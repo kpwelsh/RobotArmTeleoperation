@@ -6,7 +6,7 @@ grand_parent: Behind the Scenes
 math: mathjax
 mermaid: True
 ---
-
+  
 # Usage
 
 The provided IK Solving Plugins are made available via the ```NativeRobotController``` component. In general, an implementation of ```RobotController``` should be present on each robot arm. The controller allows for the specification of a hand joint (where end effectors will be attached to), URDF model, initial joint configuration for seeding the solver, a pointer to the IK Target that should be tracked, and the name of the hand joint to give to the IK Plugin.
