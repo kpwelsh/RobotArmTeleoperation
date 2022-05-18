@@ -5,83 +5,85 @@ using Utils;
 using Newtonsoft.Json;
 using System;
 
+[Serializable]
 public class TaskRecord {
     public enum Mode {
         Recording,
-        Playing
+        Playing,
+        None
     };
+    
     public Mode mode {
         get;
         private set;
     }
 
-    [Serializable]
-    private struct TaskHeader {
-        public string Name;
-        public float CompletionTime;
-        public TaskHeader(string name, float completionTime) {
-            Name = name;
-            CompletionTime = completionTime;
-        }
-    }
+    public string Name;
+    public float CompletionTime;
+
+    [SerializeField] public List<Frame> OrderedFrames = new List<Frame>();
+    [NonSerialized] private int currentIndex = 0;
 
     public float PositionThreshold = 0.01f;
     public float RotationThreshold = 0.01f;
-
-    protected Queue<Frame> FrameBuffer = new Queue<Frame>();
     
-    private HashSet<string> unfoundNames = new HashSet<string>();
-    private Dictionary<Transform, SerializableTrans> Transforms = new Dictionary<Transform, SerializableTrans>();
-    private Dictionary<string, Transform> namedTransforms = new Dictionary<string, Transform>();
-    private float time = 0;
-    private Transform transform = null;
-    private TaskHeader taskHeader;
+    [NonSerialized] private float time = 0;
+    [NonSerialized] private Transform transform = null;
+    [NonSerialized] private TransformTree transformTree;
+    [NonSerialized] private SingleWarning singleWarning = new SingleWarning();
+    [NonSerialized] private Dictionary<Transform, SerializableTrans> LastState = new Dictionary<Transform, SerializableTrans>();
 
     public TaskRecord(GameObject task) {
-        transform = task.transform;
+        Init(task);
     }
 
-    public TaskRecord(Queue<string> buffer) {
-        taskHeader = JsonConvert.DeserializeObject<TaskHeader>(buffer.Dequeue());
-        while (buffer.Count > 0) {
-            FrameBuffer.Enqueue(JsonConvert.DeserializeObject<Frame>(buffer.Dequeue()));
-        }
+    public TaskRecord() { }
+
+    private void Init(GameObject task) {
+        singleWarning.Clear();
+        LastState.Clear();
+        transform = task.transform;
+        Name = task.name.Replace("(Clone)", "");
+        transformTree = new TransformTree(transform);
+        currentIndex = 0;
+        time = 0;
     }
 
     public void StartRecording() {
-        FrameBuffer.Clear();
-        initializeTransforms();
+        singleWarning.Clear();
+        OrderedFrames.Clear();
         mode = Mode.Recording;
     }
 
     public void StartReplaying() {
-        GameObject task = GameObject.Instantiate(Resources.Load(taskHeader.Name, typeof(GameObject))) as GameObject;
-        transform = task.transform;
-        initializeTransforms();
+        GameObject task = GameObject.Instantiate(Resources.Load(Name, typeof(GameObject))) as GameObject;
+        Init(task);
         DisableComponents();
         mode = Mode.Playing;
+    }
+
+    public void Stop() {
+        mode = Mode.None;
     }
     
     private void setTransforms(Frame frame) {
         foreach (var sTrans in frame.transforms) {
             Transform trans;
-            if (!namedTransforms.TryGetValue(sTrans.id, out trans)) {
-                if (!unfoundNames.Contains(sTrans.id)) {
-                    unfoundNames.Add(sTrans.id);
-                    Debug.LogWarningFormat("Could not find game object in scene: {0}", sTrans.id);
-                }
+            if (!transformTree.TryGetValue(sTrans.id, out trans)) {
+                singleWarning.LogWarning(String.Format("Could not find game object in scene: {0}", sTrans.id));
                 continue;
             }
 
-            trans.position = sTrans.position;
-            trans.rotation = sTrans.rotation;
+            trans.localPosition = sTrans.position;
+            trans.localRotation = sTrans.rotation;
         }
     }
 
     public void PlayUntil(float time) {
         Frame? frame = null;
-        while (FrameBuffer.Count > 0 && FrameBuffer.Peek().timestamp < time) {
-            frame = FrameBuffer.Dequeue();
+        while (currentIndex < OrderedFrames.Count && OrderedFrames[currentIndex].timestamp < time) {
+            frame = OrderedFrames[currentIndex];
+            currentIndex++;
         }
 
         if (frame.HasValue) {
@@ -89,41 +91,26 @@ public class TaskRecord {
         }
     }
 
-    public void WriteTo(Endpoint endpoint) {
-        string name = transform.gameObject.name.Replace("(Clone)", "");
-        endpoint.WriteLine(JsonConvert.SerializeObject(new TaskHeader(name, time)));
-        foreach (var frame in FrameBuffer) {
-            endpoint.WriteLine(JsonConvert.SerializeObject(frame));
-        }
-    }
-    
     public void RecordFrame(float dt) {
         time += dt;
+        if (transform == null)  {
+            return;
+        }
         Frame frame = new Frame();
         frame.timestamp = time;
         frame.transforms = new List<SerializableTrans>();
-        foreach (var trans in namedTransforms.Values) {
-            SerializableTrans sTrans = new SerializableTrans(trans, transform.gameObject);
-            if (!Transforms.ContainsKey(trans) || Transforms[trans].neq(sTrans, PositionThreshold, RotationThreshold)) {
-                Transforms[trans] = sTrans;
+        foreach (var kvp in transformTree.IterItems()) {
+            string id = kvp.Key;
+            Transform trans = kvp.Value;
+            var sTrans = new SerializableTrans(id, trans.localPosition, trans.localRotation);
+            if (!LastState.ContainsKey(trans) || LastState[trans].neq(sTrans, PositionThreshold, RotationThreshold)) {
+                LastState[trans] = sTrans;
                 frame.transforms.Add(sTrans);
             }
         }
 
         if (frame.transforms.Count > 0) {
-            FrameBuffer.Enqueue(frame);
-        }
-    }
-
-    private void initializeTransforms() {
-        foreach (var t in transform.AllChildren()) {
-            var go = t.gameObject;
-            string fullName = go.FullName(transform.gameObject);
-            if (namedTransforms.ContainsKey(fullName)) {
-                Debug.LogWarningFormat("Found multiple gameobjects with full name: {0}", fullName);
-            } else {
-                namedTransforms[fullName] = go.transform;
-            }
+            OrderedFrames.Add(frame);
         }
     }
     

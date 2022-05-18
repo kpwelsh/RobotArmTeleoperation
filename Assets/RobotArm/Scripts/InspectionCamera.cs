@@ -5,6 +5,7 @@ using UnityEngine.Rendering;
 
 public class InspectionCamera : EndEffector
 {
+    public List<Texture2D> Images = new List<Texture2D>();
     private Camera camera;
     void Start()
     {
@@ -13,6 +14,13 @@ public class InspectionCamera : EndEffector
 
     void Update()
     {
+    }
+
+    public override void Activate(bool value)
+    {
+        if (value) {
+            Images.Add(TakePic());
+        }
     }
 
     public Texture2D TakePic()

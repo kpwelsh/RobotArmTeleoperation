@@ -1,0 +1,46 @@
+#define THREADS_PER_GROUP 512 // Ensure that this equals the "threadsPerGroup" variables in the host scripts using this.
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+StructuredBuffer<float> InputBuf;
+RWStructuredBuffer<float> OutputBuf;
+
+groupshared float bucket[THREADS_PER_GROUP];
+void Scan(uint id, uint gi, uint gnumber, float x) {
+    bucket[gi] = x;
+    
+    [unroll]
+    for (uint t = 1; t < THREADS_PER_GROUP; t <<= 1) {
+        GroupMemoryBarrierWithGroupSync();
+        float temp = bucket[gi];
+        uint right_index = gi + t;
+        if (right_index < THREADS_PER_GROUP) temp += bucket[right_index];
+        GroupMemoryBarrierWithGroupSync();
+        bucket[gi] = temp;
+    }
+    
+    if (gi == 0) OutputBuf[gnumber] = bucket[gi];
+}
+
+
+uint length;
+#pragma kernel Sum
+[numthreads(THREADS_PER_GROUP, 1, 1)]
+void Sum(uint id: SV_DispatchThreadID, uint gid : SV_GroupIndex, uint gnumber : SV_GroupID) {
+    float x = id < length ? InputBuf[id] : 0;
+    Scan(id, gid, gnumber, x);
+}
+
+
+RWStructuredBuffer<float> Result;
+Texture2D<float4> ScoreMap;
+Texture2D<float4> Marking;
+uint res_x, res_y;
+#pragma kernel Score
+[numthreads(THREADS_PER_GROUP, 1, 1)]
+void Score(uint id: SV_DispatchThreadID) {
+    uint2 xy = uint2(id / res_y, id % res_x);
+    float a = ScoreMap[xy][3];
+    float score = a > 0.99 ? 1 : a-1;
+    if (id < res_x * res_y) Result[id] = score * Marking[xy][3];
+}

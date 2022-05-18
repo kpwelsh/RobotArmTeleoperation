@@ -39,9 +39,10 @@ Shader "Custom/Canvas"
         {
             // Albedo comes from a texture tinted by color
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
-  
             fixed4 marker_color = tex2D(_Marker, IN.uv_MainTex);
+
             o.Albedo = marker_color.rgb * marker_color.a + c.rgb * (1 - marker_color.a);
+            
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic * (1 - marker_color.a);
             o.Smoothness = _Glossiness * (1 - marker_color.a);

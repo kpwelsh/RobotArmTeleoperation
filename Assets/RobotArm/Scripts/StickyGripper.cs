@@ -13,17 +13,7 @@ public class StickyGripper : EndEffector
     public float GripperUpperLimit = 0.04f;
     public List<Finger> Fingers = new List<Finger>();
     public bool InvertActivation = false;
-
-    private struct HeldObject {
-        public Rigidbody rb;
-        public Matrix4x4 Transform;
-    }
-    private List<HeldObject> held = new List<HeldObject>();
-
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
+    private List<Rigidbody> held = new List<Rigidbody>();
 
     public void OnTrigger(InputValue value) {
         Activate(value.Get<float>());
@@ -49,36 +39,19 @@ public class StickyGripper : EndEffector
     }
 
     void hold(Rigidbody rb) {
-        foreach (var ho in held) {
-            if (ho.rb == rb) {
-                return;
-            }
-        }
-        Debug.Log("Holding" + rb.ToString());
-        HeldObject new_ho = new HeldObject();
-        new_ho.rb = rb;
-        new_ho.Transform = transform.worldToLocalMatrix * rb.transform.localToWorldUnscaled();
-        foreach(var finger in Fingers) {
-            foreach (var collider in rb.gameObject.GetComponentsInChildren<Collider>()) {
-                finger.IgnoreCollision(collider, true);
-            }
+        if (held.Contains(rb)) {
+            return;
         }
         var fj = rb.gameObject.AddComponent<FixedJoint>();
         fj.connectedArticulationBody = GetComponent<ArticulationBody>();
         fj.enableCollision = true;
-        held.Add(new_ho);
+        held.Add(rb);
     }
 
-    void drop(HeldObject ho) {
-        Debug.Log("Dropping" + ho.ToString());
-        foreach(var finger in Fingers) {
-            foreach (var collider in ho.rb.gameObject.GetComponentsInChildren<Collider>()) {
-                finger.IgnoreCollision(collider, false);
-            }
-        }
-        held.Remove(ho);
-        ho.rb.isKinematic = false;
-        Destroy(ho.rb.gameObject.GetComponent<FixedJoint>());
+    void drop(Rigidbody rb) {
+        held.Remove(rb);
+        rb.isKinematic = false;
+        Destroy(rb.gameObject.GetComponent<FixedJoint>());
     }
 
     void FixedUpdate()
@@ -97,16 +70,11 @@ public class StickyGripper : EndEffector
                 hold(rb);
             }
         }
-
+    
         for (int i = held.Count - 1; i >= 0; i--) {
-            if (touching == null || !touching.Contains(held[i].rb)) {
+            if (touching == null || !touching.Contains(held[i])) {
                 drop(held[i]);
             }
-        }
-        foreach (HeldObject ho in held) {
-            var trans = transform.localToWorldUnscaled() * ho.Transform;
-            //ho.rb.MovePosition(trans.GetPosition());
-            //ho.rb.MoveRotation(trans.rotation);
         }
     }
 }

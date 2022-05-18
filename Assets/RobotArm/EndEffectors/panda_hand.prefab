@@ -374,7 +374,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Body: {fileID: 0}
   detector: {fileID: 0}
-  ContactThreshold: 0.02
 --- !u!1 &4285175215957574410
 GameObject:
   m_ObjectHideFlags: 0
@@ -886,7 +885,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Body: {fileID: 0}
   detector: {fileID: 0}
-  ContactThreshold: 0.02
 --- !u!1 &6441703944259284608
 GameObject:
   m_ObjectHideFlags: 0

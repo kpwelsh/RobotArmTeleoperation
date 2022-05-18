@@ -8,9 +8,18 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Scene.unity
     guid: 0a13cf4d0f363a845b049de8fcd0f2cb
+  - enabled: 0
+    path: Assets/Scenes/IKTest.unity
+    guid: f871c6e8dd920dd4a9a3da59bdbcffc8
+  - enabled: 0
+    path: Assets/Scenes/DoorTest.unity
+    guid: 2c3e8fcba1ce30a4e817782cfedc0c60
+  - enabled: 1
+    path: Assets/Scenes/SerializationTest.unity
+    guid: f07467243368eac4ca49d6218ccd52c0
   m_configObjects:
     WebXR.Settings: {fileID: 11400000, guid: 695b7b850b9ef624eb73d671b1adc97f, type: 2}
     com.unity.input.settings: {fileID: 11400000, guid: 2de9ca6bfaaa6f84396327c97fb165de, type: 2}

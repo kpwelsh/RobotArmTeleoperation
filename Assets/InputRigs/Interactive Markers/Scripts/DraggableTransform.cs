@@ -6,7 +6,7 @@ using System;
 public class DraggableTransform : DraggableAxis
 {
     public float MaxDragDistance = 0.1f;
-    private Vector3 attachPoint;
+    private Vector3 anchor;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,7 +24,7 @@ public class DraggableTransform : DraggableAxis
                     Selected.transform.position - 0.5f * axis, 
                     Selected.transform.position + 0.5f * axis
                 );
-            attachPoint = ls.Project(activateData.Hit.point) - transform.position;
+            anchor = ls.Project(activateData.Hit.point) - transform.position;
             Pointer = activateData.Pointer;
             Pointer.UnClickListener += Unselect;
             Pointer.PointListener += Point;
@@ -50,7 +50,7 @@ public class DraggableTransform : DraggableAxis
             }
         }
 
-        Vector3 dp = best_p - transform.position - attachPoint;
+        Vector3 dp = best_p - transform.position - anchor;
         if (best_d < float.MaxValue && dp.magnitude <= MaxDragDistance) {
             ControlledTransform.position += dp;
         } else {

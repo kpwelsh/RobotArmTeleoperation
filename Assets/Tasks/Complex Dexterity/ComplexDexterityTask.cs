@@ -6,9 +6,7 @@ using System.Linq;
 public class ComplexDexterityTask : Task
 {
     public Clock clock;
-    private List<SubTask> subTasks;
     void Start() {
-        subTasks = GetComponentsInChildren<SubTask>().ToList();
 
         clock.StartTimer(() => {
             Pause();

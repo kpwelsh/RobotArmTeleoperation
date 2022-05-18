@@ -47,7 +47,7 @@ public class SystemManager : MonoBehaviour
     public GameObject Hub;
     public GameObject TaskParent;
 
-    public TaskRecord taskRecord;
+    public TaskRecord taskRecord = null;
     private float time = 0;
     void FixedUpdate() {
         if (taskRecord != null) {
@@ -89,6 +89,7 @@ public class SystemManager : MonoBehaviour
         GameObject task = Instantiate(TargetScene, TaskParent.transform);
         task.SetActive(true);
         taskRecord = new TaskRecord(task);
+        taskRecord.StartRecording();
 
         GameObject.FindObjectOfType<InputRig>()?.ObserveScene();
     }
@@ -107,6 +108,7 @@ public class SystemManager : MonoBehaviour
         }
         Hub?.SetActive(true);
         GameObject.FindObjectOfType<InputRig>()?.ObserveScene();
+        taskRecord?.Stop();
     }
 
     public void OnMenu(InputValue value) {

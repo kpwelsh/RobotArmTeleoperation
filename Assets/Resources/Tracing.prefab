@@ -715,6 +715,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DrawMat: {fileID: 2100000, guid: 2e04f5ef48b5c0a4681ef6d822ef2253, type: 2}
   UVRaster: {fileID: 2100000, guid: 5f0e3127f31b5fa46ba7cee4444e89e5, type: 2}
+  MarkerTex: {fileID: 0}
+  MarkerTexShape: {x: 1024, y: 512}
 --- !u!65 &6244900598263471549
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -774,10 +776,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Name: Task
-  Target: {fileID: 6244900598263471551}
-  ReferenceCurve: {fileID: 2800000, guid: aa27cfde10f9ada40aaea6759327f8ad, type: 3}
-  Canvas: {fileID: 6244900598263471538}
-  CompletionThreshold: 0.95
+  shader: {fileID: 7200000, guid: f3a34d29afb6462429e285bf0edaff94, type: 3}
+  StencilSDF: {fileID: 2800000, guid: e4b14c20ec335104482d90f118df0897, type: 3}
+  Mesh: {fileID: 6244900598263471538}
 --- !u!1 &7493052412417028057
 GameObject:
   m_ObjectHideFlags: 0
@@ -1072,11 +1073,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8980584098198538427}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8edd1c7b80af03247ba7a208e4113738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  difficultyMaps: []
   RobotPosition: {fileID: 6832430431792863231}
   EndEffector: {fileID: 3634877771463807762, guid: 8e6697b1e616ea9409d09ddb8d491cb0, type: 3}
   SceneCameras:

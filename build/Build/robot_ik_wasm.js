@@ -176,6 +176,13 @@ export function solve(iksolver, current_q, trans) {
     }
 }
 
+/**
+* @param {number} iksolver
+*/
+export function deallocate(iksolver) {
+    wasm.deallocate(iksolver);
+}
+
 async function load(module, imports) {
     if (typeof Response === 'function' && module instanceof Response) {
         if (typeof WebAssembly.instantiateStreaming === 'function') {

@@ -6,19 +6,23 @@ public class NativePluginController : RobotController
 {
     public string HandJointName;
     public TextAsset URDF;
-    private int IKRobotID = -1;
+    protected IKInterface iKInterface = null;
     // Start is called before the first frame update
     protected override void Start() {
         base.Start();
         
         if (URDF != null) {
-            IKRobotID = RustIKWrapper.Init(URDF.text, InitialJoints.Count);
-            if (IKRobotID < 0) Debug.Log(URDF.text);
+            try {
+                iKInterface = new IKInterface(URDF.text, HandJointName);
+            } catch (IKInterfaceException e) {
+                Debug.LogError(e.ToString());
+                iKInterface = null;
+            }
         }
     }
 
     void FixedUpdate() {
-        if (target != null && IKRobotID >= 0)
+        if (target != null && iKInterface != null)
             updateIK();
     }
 
@@ -26,11 +30,8 @@ public class NativePluginController : RobotController
         (Vector3 translation, Quaternion rotation) = targetInRobotFrame();
         float[] q;
         var watch = System.Diagnostics.Stopwatch.StartNew();
-        bool success = RustIKWrapper.TrySolve(
-            IKRobotID,
-            InitialJoints.Count,
+        bool success = iKInterface.TrySolve(
             current_target.ToArray(),
-            HandJointName,
             translation,
             rotation,
             out q
@@ -43,12 +44,5 @@ public class NativePluginController : RobotController
             for (int i = 0; i < q.Length; i++) current_target[i] = q[i];
         }
         SetJoints(current_target);
-    }
-
-
-    ~NativePluginController() {
-        if (IKRobotID >= 0) {
-            RustIKWrapper.Deallocate(IKRobotID);
-        }
     }
 }

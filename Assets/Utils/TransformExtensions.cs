@@ -17,5 +17,10 @@ namespace Utils {
                 }
             }
         }
+
+        public static bool neq(this Transform a, Transform b, float positionThreshold, float rotationThreshold) {
+            return ((Vector3)b.position - a.position).magnitude >= positionThreshold
+                || Quaternion.Angle(b.rotation, a.rotation) >= rotationThreshold;
+        }
     }
 }

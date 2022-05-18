@@ -1,12 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 public class SerializationTest : HasSystemManager
 {
-    // Start is called before the first frame update
+    public string Folder = "./";
+    public string Url = "authenticatedserver-template-vsu6yklrnq-uk.a.run.app";
+
+    SecureDatabase<TaskRecord> taskDb;
+
     void Start()
     {
+        taskDb = new LocalDatabase<TaskRecord>(Folder);
+        //taskDb = new RemoteDatabase<TaskRecord>(Url);
         StartCoroutine(InASec());
     }
 
@@ -17,16 +24,15 @@ public class SerializationTest : HasSystemManager
     }
 
     IEnumerator stopLater() {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(1);
         SystemManager.EndScene();
-        Endpoint ep = new NativeFileEndpoint("here.txt");
-        ep.Open(Endpoint.Mode.Write);
-        SystemManager.taskRecord.WriteTo(ep);
-        ep.Close();
-        if (ep.Open(Endpoint.Mode.Read)) {
-            SystemManager.ReplayScene(new TaskRecord(new Queue<string>(ep.ReadAll())));
-        } else {
-            Debug.Log("Couildn't replay.");
-        }
+
+        taskDb.Authorize("hcilab").ContinueWith(async (result) => {
+            if (result) {
+                await taskDb.WriteRecord(SystemManager.taskRecord, SystemManager.taskRecord.Name);
+                var taskRecord = await taskDb.ReadRecord(SystemManager.taskRecord.Name);
+                SystemManager.ReplayScene(taskRecord);
+            }
+        });
     }
 }

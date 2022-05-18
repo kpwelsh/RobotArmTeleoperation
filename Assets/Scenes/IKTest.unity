@@ -911,7 +911,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &749206462
 Transform:
   m_ObjectHideFlags: 0
@@ -1296,13 +1296,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1056938409}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7398f5a325ff87b4c9c073d555a84acb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Robots:
-  - {fileID: 2804551491419614716, guid: 7b223c189222a224f89a3e32c5cbf657, type: 3}
+  - {fileID: 2804551491419614716, guid: 39ccef3e387d051498d87c4f43234b3b, type: 3}
+  - {fileID: 360690022214985178, guid: 470e639fffe2bfc40978c2c1c5bed8e7, type: 3}
   EndEffector: {fileID: 5487856578971645937, guid: da9a7de0216948240a7f04d200ddb6ac, type: 3}
   Box: {fileID: 1925005379}
 --- !u!1001 &1110852074
@@ -1493,7 +1494,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1174605036
 Transform:
   m_ObjectHideFlags: 0
@@ -1939,7 +1940,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 360690022214985178, guid: 470e639fffe2bfc40978c2c1c5bed8e7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 360690022347677210, guid: 470e639fffe2bfc40978c2c1c5bed8e7, type: 3}
       propertyPath: Target
@@ -2264,7 +2265,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2804551491419614716, guid: 7b223c189222a224f89a3e32c5cbf657, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3291912127617941709, guid: 7b223c189222a224f89a3e32c5cbf657, type: 3}
       propertyPath: Target

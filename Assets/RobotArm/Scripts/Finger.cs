@@ -17,21 +17,13 @@ public class Finger : MonoBehaviour
         if (detector == null || detector.Equals(null))
             detector = GetComponentInChildren<BoxCollider>();
     }
-
-    public void IgnoreCollision(Collider other, bool ignore = true) {
-        foreach (var collider in GetComponentsInChildren<Collider>()) {
-            if (collider != detector) {
-                //Physics.IgnoreCollision(collider, other, ignore);
-            }
-        }
-    }
-
     public void Freeze() {
 
         ArticulationDrive drive = Body.xDrive;
         float x = Body.jointPosition[0];
         if (Body.jointType == ArticulationJointType.RevoluteJoint) {
             x *= 180f / Mathf.PI;
+            
         }
         drive.lowerLimit = x - 0.005f;
         drive.target = drive.lowerLimit;
@@ -64,7 +56,7 @@ public class Finger : MonoBehaviour
     private void touch(Rigidbody rb) {
         if (rb == null) return;
         if (!InContact.Contains(rb)) {
-            //Freeze();
+            Freeze();
             InContact.Add(rb);
         }
     }

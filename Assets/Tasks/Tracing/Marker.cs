@@ -20,7 +20,6 @@ public class Marker : MonoBehaviour
             Vector3 point = other.ClosestPoint(Tip.position);
             Vector3 last = MeshDrawHistory[dm].GetValueOrDefault(point);
             MeshDrawHistory[dm] = point;
-            Debug.Log(point);
             dm.Draw(point, Size, DrawColor, last);
         }
     }

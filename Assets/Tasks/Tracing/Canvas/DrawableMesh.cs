@@ -10,6 +10,7 @@ public class DrawableMesh : MonoBehaviour
     public Material UVRaster;
     private Vector3[,] positions;
     public Texture2D MarkerTex;
+    public Vector2Int MarkerTexShape = new Vector2Int(1024, 1024);
     private Texture2D uvPositionTexture;
 
     private Matrix4x4 NormalizedToObj;
@@ -19,7 +20,7 @@ public class DrawableMesh : MonoBehaviour
     void Start()
     {
         Texture mainTex = GetComponent<MeshRenderer>().material.mainTexture;
-        MarkerTex = new Texture2D(1024, 1024, TextureFormat.RGBAFloat, false);
+        MarkerTex = new Texture2D(MarkerTexShape.x, MarkerTexShape.y, TextureFormat.RGBAFloat, false);
         fill(MarkerTex, new Color(0,0,0,0));
         RasterizeUV();
         GetComponent<MeshRenderer>().material.SetTexture("_Marker", MarkerTex);
@@ -81,14 +82,8 @@ public class DrawableMesh : MonoBehaviour
 
         float aspectRatio = ((float)MarkerTex.width) / MarkerTex.height;
         Vector3[] newVertices = new Vector3[mesh.uv.Length];
-        float[] testMin = new float[]{float.MaxValue, float.MaxValue};
-        float[] testMax = new float[]{float.MinValue, float.MinValue};
         for (int i = 0; i < newVertices.Length; i++) {
             newVertices[i] = new Vector3(mesh.uv[i].x * aspectRatio, mesh.uv[i].y, 0);
-            for (int j = 0; j < 2; j++) {
-                testMin[j] = Mathf.Min(testMin[j], newVertices[i][j]);
-                testMax[j] = Mathf.Max(testMax[j], newVertices[i][j]);
-            }
         }
 
         Color[] colors = new Color[newVertices.Length];
@@ -106,7 +101,7 @@ public class DrawableMesh : MonoBehaviour
 
         GameObject raster_obj = new GameObject();
         raster_obj.AddComponent<MeshFilter>().mesh = new Mesh();
-        // Hmmm....
+        // Hmmm.... not sure why this is necessary. 
         var uv_mesh = raster_obj.GetComponent<MeshFilter>().mesh;
        
 

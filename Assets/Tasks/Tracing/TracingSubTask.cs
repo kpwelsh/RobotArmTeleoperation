@@ -1,68 +1,143 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class TracingSubTask : SubTask
 {
-    public Texture2D ReferenceCurve;
-    public DrawableMesh Canvas;
-    public float CompletionThreshold = 0.95f;
 
-    private float correctPercent = 0;
-    private float errorPercent = 0;
+    private class ParallelSummer {
+        int threads_per_group = 512;
+        ComputeShader Shader;
+        int kernel_index;
+        public ParallelSummer(ComputeShader shader) {
+            Shader = shader;
+            kernel_index = Shader.FindKernel("Sum");
+        }
+
+        public float Sum(float[] data) {
+            ComputeBuffer InputBuf = new ComputeBuffer(data.Length, sizeof(float));
+            InputBuf.SetData(data);
+
+            float result = Sum(InputBuf);
+
+            InputBuf.Release();
+            return result;
+        }
+
+
+        public float Sum(ComputeBuffer InputBuf) {
+            int length = InputBuf.count;
+            int nGroups = Mathf.CeilToInt(length / (float)threads_per_group);
+
+            ComputeBuffer OutputBuf = new ComputeBuffer(length, sizeof(float));
+            (InputBuf, OutputBuf) = (OutputBuf, InputBuf);
+            while (length > 1) {
+                (InputBuf, OutputBuf) = (OutputBuf, InputBuf);
+                Shader.SetInt("length", length);
+                Shader.SetBuffer(kernel_index, "InputBuf", InputBuf);
+                Shader.SetBuffer(kernel_index, "OutputBuf", OutputBuf);
+
+                Shader.Dispatch(kernel_index, nGroups, 1, 1);
+
+                length = nGroups;
+                nGroups = Mathf.CeilToInt(nGroups / (float)threads_per_group);
+            }
+            
+            float[] result = new float[1];
+            OutputBuf.GetData(result);
+            OutputBuf.Release();
+            return result[0];
+        }
+    }
+
+    private class ParallelScorer {
+        int threads_per_group = 512;
+        ComputeShader Shader;
+        int kernel_index;
+
+        public ParallelScorer(ComputeShader shader) {
+            Shader = shader;
+            kernel_index = Shader.FindKernel("Score");
+        }
+
+        public ComputeBuffer Score(Texture2D marking, Texture2D scoreMap) {
+            int length = marking.width * marking.height;
+            int nGroups = Mathf.CeilToInt(length / (float)threads_per_group);
+            ComputeBuffer Result = new ComputeBuffer(length, sizeof(float));
+
+            Shader.SetInt("res_x", marking.width);
+            Shader.SetInt("res_y", marking.height);
+            Shader.SetTexture(kernel_index, "Marking", marking);
+            Shader.SetTexture(kernel_index, "ScoreMap", scoreMap);
+            Shader.SetBuffer(kernel_index, "Result", Result);
+
+            Shader.Dispatch(kernel_index, nGroups, 1, 1);
+
+            return Result;
+        }
+    }
+
+    public ComputeShader shader;
+    public Texture2D StencilSDF;
+    public DrawableMesh Mesh;
+    ParallelSummer summer;
+    ParallelScorer scorer;
+
+    float? currentScore;
+
+    void Start()
+    {
+        StartCoroutine(Init());
+    }
+
+    /// Initializes the marker texture buffers and what not.
+    /// Tries to wait for the Mesh to initialize first.
+    IEnumerator Init() {
+        while (Mesh.MarkerTex == null) {
+            yield return new WaitForEndOfFrame();
+        }
+        if (Mesh.MarkerTex.width != StencilSDF.width
+            || Mesh.MarkerTex.height != StencilSDF.height) {
+            
+            throw new System.Exception(
+                String.Format(
+                    "The dimensions of the marker texture must be the same as those for the SDF stencil to score. ({0},{1}) != ({2}, {3})",
+                    Mesh.MarkerTex.width, Mesh.MarkerTex.height,
+                    StencilSDF.width, StencilSDF.height
+                )
+            );
+        }
+
+        summer = new ParallelSummer(shader);
+        scorer = new ParallelScorer(shader);
+    }
+
+    public bool Initialized() {
+        return summer != null && scorer != null;
+    }
+
+
+    float? Score() {
+        if (!Initialized()) return null;
+        var scores = scorer.Score(Mesh.MarkerTex, StencilSDF);
+        float result = summer.Sum(scores);
+        scores.Release();
+        return result;
+    }
 
     void Update() {
-        //updateCompletion();
+        currentScore = Score();
     }
 
     public override bool Complete()
     {
-        return correctPercent >= CompletionThreshold;
+        return false;
     }
 
     public override string ProgressDisplay()
     {
-        return string.Format("{0}|{1}", correctPercent, errorPercent);
-    }
-
-    private void updateCompletion() {
-        Texture2D marker = Canvas.MarkerTex;
-        if (marker == null) {
-            correctPercent = 0;
-            errorPercent = 0;
-            return;
-        }
-
-
-        int errorCount = 0;
-        int correctCount = 0;
-        Color[] colors = marker.GetPixels(0, 0, marker.width, marker.height);
-        for (var i = 0; i < marker.height; i++) {
-            float u = (float)i / marker.height;
-            int ri = (int) (u * ReferenceCurve.height);
-            for (var j = 0; j < marker.width; j++) {
-                float v = (float)j / marker.width;
-                Color c = colors[i * marker.width + j];
-                if (isBlank(c))
-                    continue;
-
-                int rj = (int) (v * ReferenceCurve.width);
-
-                Color rc = ReferenceCurve.GetPixel(ri, rj);
-
-                if (isBlank(rc)) {
-                    errorCount++;
-                } else {
-                    correctCount++;
-                }
-            }
-        }
-
-        correctPercent = correctCount;
-        errorPercent = errorCount;
-    }
-
-    private bool isBlank(Color c) {
-        return c.a >= 0.95f;
+        if (!currentScore.HasValue) return "N/A";
+        return string.Format("{0}", currentScore.Value);
     }
 }
