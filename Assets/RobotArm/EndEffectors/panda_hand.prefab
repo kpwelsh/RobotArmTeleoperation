@@ -703,6 +703,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5747919586838691895}
   - component: {fileID: 966796210901831744}
+  - component: {fileID: 2035454558253330229}
   m_Layer: 0
   m_Name: unnamed
   m_TagString: Untagged
@@ -739,6 +740,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   geometryType: 3
+--- !u!65 &2035454558253330229
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5654833579772344828}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.01, y: 0.01733121, z: 0.01}
+  m_Center: {x: 0, y: 0.04483439, z: 0}
 --- !u!1 &6023767404109493351
 GameObject:
   m_ObjectHideFlags: 0
@@ -895,6 +909,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3470444866814930668}
   - component: {fileID: 7978385443129844403}
+  - component: {fileID: 3850319580198143415}
   m_Layer: 0
   m_Name: unnamed
   m_TagString: Untagged
@@ -931,6 +946,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   geometryType: 3
+--- !u!65 &3850319580198143415
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6441703944259284608}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.01, y: 0.017331209, z: 0.01}
+  m_Center: {x: 0, y: 0.044834394, z: 0}
 --- !u!1 &6647155178550285193
 GameObject:
   m_ObjectHideFlags: 0
@@ -1254,9 +1282,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2102915505780057676, guid: 7b7fd95c5686af94899638bf1e904957, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3244630582100022734, guid: 7b7fd95c5686af94899638bf1e904957, type: 3}
       propertyPath: m_Name
       value: finger
+      objectReference: {fileID: 0}
+    - target: {fileID: 3244630582100022734, guid: 7b7fd95c5686af94899638bf1e904957, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1993600148080896506, guid: 7b7fd95c5686af94899638bf1e904957, type: 3}

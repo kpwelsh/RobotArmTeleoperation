@@ -1080,7 +1080,7 @@ MonoBehaviour:
   - TaskDifficulty: 2
     TaskConfig: {fileID: 1334832180987587480}
   RobotPosition: {fileID: 3295316193948078681}
-  EndEffector: {fileID: 5487856578971645937, guid: da9a7de0216948240a7f04d200ddb6ac, type: 3}
+  EndEffector: {fileID: 4616236627418890689, guid: 1ac86cde6325a6f4bbd4a70de9b969ee, type: 3}
   SceneCameras:
   - {fileID: 3295316193836264148}
   - {fileID: 3295316192880596256}

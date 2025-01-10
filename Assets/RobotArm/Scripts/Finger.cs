@@ -23,7 +23,6 @@ public class Finger : MonoBehaviour
         float x = Body.jointPosition[0];
         if (Body.jointType == ArticulationJointType.RevoluteJoint) {
             x *= 180f / Mathf.PI;
-            
         }
         drive.lowerLimit = x - 0.005f;
         drive.target = drive.lowerLimit;
@@ -31,6 +30,7 @@ public class Finger : MonoBehaviour
     }
 
     public void UnFreeze() {
+        Debug.Log("Unfreezing");
         // Dear Future Kevin. 
         // If you want to allow for maintaining multiple contacts
         // You really need to keep track of all of the joint values at which you 
@@ -66,7 +66,7 @@ public class Finger : MonoBehaviour
             InContact.Remove(rb);
         }
         if (InContact.Count == 0) {
-            //UnFreeze();
+            UnFreeze();
         }
     }
 }

@@ -3,7 +3,12 @@ guid: 4e9a53179747d8b4dae24bbebe6bb382
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - RobotPosition: {instanceID: 0}
+  - EndEffector: {fileID: 4616236627418890689, guid: 1ac86cde6325a6f4bbd4a70de9b969ee, type: 3}
+  - StartingPosition: {instanceID: 0}
+  - EndBox: {instanceID: 0}
+  - TaskTimer: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

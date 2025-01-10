@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Utils;
+using System.IO;
 
 public class StickyGripper : EndEffector
 {
@@ -25,7 +26,6 @@ public class StickyGripper : EndEffector
 
     public override void Activate(float target) {
         if (InvertActivation) target = 1 - target;
-
         target = target * (GripperUpperLimit - GripperLowerLimit) + GripperLowerLimit;
         
         foreach (var finger in Fingers) {
@@ -74,6 +74,20 @@ public class StickyGripper : EndEffector
         for (int i = held.Count - 1; i >= 0; i--) {
             if (touching == null || !touching.Contains(held[i])) {
                 drop(held[i]);
+            }
+        }
+        if (held.Count > 0)
+        {
+            foreach (Finger finger in Fingers)
+            {
+                finger.Freeze();
+            }
+        } else
+        {
+
+            foreach (Finger finger in Fingers)
+            {
+                finger.UnFreeze();
             }
         }
     }
